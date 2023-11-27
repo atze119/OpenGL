@@ -13,12 +13,18 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+float mixValue = 0.01f;
+
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE))
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE))
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (glfwGetKey(window, GLFW_KEY_UP))
+        mixValue += 0.01f;
+    if (glfwGetKey(window, GLFW_KEY_DOWN))
+        mixValue -= 0.01f;
 }
 
 int main(void)
@@ -58,10 +64,10 @@ int main(void)
 
     float vertices[] = {
         // positions        // colors           // texture coords
-        0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   2.0f, 2.0f, // top-right
-        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   2.0f, 0.0f, // bottom-right
+        0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top-right
+        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom-right
        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   0.0f, 0.0f, // bottom-left
-       -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,   0.0f, 2.0f, // top-left
+       -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,   0.0f, 1.0f, // top-left
     };
 
     unsigned int indices[] = {
@@ -101,8 +107,8 @@ int main(void)
     glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
     // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load and generate the texture
@@ -166,6 +172,7 @@ int main(void)
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
+        ourShader.setFloat("mixParam", mixValue);
         //ourShader.use();
         //ourShader.setFloat("positionOffset", 0.3f);
         glBindVertexArray(VAO);
