@@ -3,6 +3,9 @@
 #include "Shader.h"
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
 // Magnifying means up-scaling, minifying means down-sclaing
@@ -146,11 +149,19 @@ int main(void)
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-   
+
+    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    //glm::mat4 trans = glm::mat4(1.0f);
+    //trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+    //
 
     ourShader.use();
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
     ourShader.setInt("texture2", 1);
+    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+                // uniforms location, count of elements, transpose?, actual data => GLM stores their data in a way which is not compatible with openGL so we need to convert it first
+    //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -173,6 +184,12 @@ int main(void)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         ourShader.setFloat("mixParam", mixValue);
+
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
         //ourShader.use();
         //ourShader.setFloat("positionOffset", 0.3f);
         glBindVertexArray(VAO);
