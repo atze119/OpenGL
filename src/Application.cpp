@@ -91,6 +91,7 @@ int main(void)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  
     // position attribute
     // Parameters: layout (location=0), position = vec3, type of data, normalize data, stride, offset
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
@@ -159,9 +160,7 @@ int main(void)
     ourShader.use();
     glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
     ourShader.setInt("texture2", 1);
-    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-                // uniforms location, count of elements, transpose?, actual data => GLM stores their data in a way which is not compatible with openGL so we need to convert it first
-    //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+    
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -170,29 +169,32 @@ int main(void)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // this is a state setting function
         glClear(GL_COLOR_BUFFER_BIT); // this is a state using function
 
-        // Draw Triangle / Rectangle, use Program needs to be before we can search for the index of uniforms
-        //ourShader.setFloat("someUniform", 1.0f);
-        
-        // update the uniform color
-        //float timeValue = glfwGetTime();
-        //float greenValue = sin(timeValue) / 2.0f + 0.5f; // change color over time, it varies the value between 0.0f - 1.0f
-        //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor"); // name of the variable to search for
-        //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // 4f == 4 float values as parameters
-
+        // bind textures on corresponding texture units
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         ourShader.setFloat("mixParam", mixValue);
 
-        glm::mat4 trans = glm::mat4(1.0f);
+        // first transformation
+        glm::mat4 trans = glm::mat4(1.0f); // identity matrix
         trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
         trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+      
+        unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
         //ourShader.use();
         //ourShader.setFloat("positionOffset", 0.3f);
         glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // second transformation
+        trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+        float scaleAmount = static_cast<float>(sin(glfwGetTime()));
+        trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // User input
@@ -207,6 +209,7 @@ int main(void)
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;
