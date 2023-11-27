@@ -29,6 +29,9 @@
     <ClInclude Include="src\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\fragmentShader.glsl">
@@ -39,5 +42,13 @@
     <Text Include="src\vertexShader.glsl">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="C:\Users\fynnj\Downloads\container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\awesomeface.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
