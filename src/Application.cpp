@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Shader.h"
+#include "Camera.h"
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -11,19 +12,34 @@
 // Magnifying means up-scaling, minifying means down-sclaing
 // Magnifying cant be used on mipmaps because mipmaps are used to downscale the texture 
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
+
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
+Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse{ true };
+
+float mixValue = 0.01f;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-float lastX = 400, lastY = 300;
-float yaw = -90.0f, pitch;
-bool firstMouse{ true };
-void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
 {
+    float xPos = static_cast<float>(xPosIn);
+    float yPos = static_cast<float>(yPosIn);
+
     if (firstMouse)
     {
         lastX = xPos;
@@ -31,47 +47,17 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
         firstMouse = false;
     }
     float xOffset = xPos - lastX;
-    float yOffset = lastY - yPos;
+    float yOffset = lastY - yPos; // reversed because y-coordinates go from bottom to top
     lastX = xPos;
     lastY = yPos;
 
-    const float sensitivity = 0.1f;
-    xOffset *= sensitivity;
-    yOffset *= sensitivity;
-
-    yaw += xOffset;
-    pitch += yOffset;
-
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(direction);
+    camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
-float fov = 45.0f;
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 {
-    // change fov to zoom
-    fov -= (float)yOffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f;
+    camera.ProcessMouseScroll(static_cast<float>(yOffset));
 }
-
-float mixValue = 0.01f;
-
-
-
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
 
 bool polygonModePressed = false;
 void processInput(GLFWwindow* window)
@@ -99,13 +85,13 @@ void processInput(GLFWwindow* window)
         mixValue -= 0.01f;
     const float cameraSpeed = 4.5f * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 
 }
 
@@ -118,7 +104,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (!window)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -138,7 +124,7 @@ int main(void)
     }
 
     // We can set the viewport to a different size, which means the renderering display will be a different size than the window
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -294,7 +280,7 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = glfwGetTime();
+        float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         /* Render here */
@@ -310,24 +296,11 @@ int main(void)
         glBindTexture(GL_TEXTURE_2D, texture2);
         ourShader.setFloat("mixParam", mixValue);
 
-        // create transformations
-        glm::mat4 model = glm::mat4(1.0f); // identity matrix
-        glm::mat4 view;
-        glm::mat4 projection = glm::mat4(1.0f);
-        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        const float radius = 10.0f;
-        float camX = sin((float) glfwGetTime()) * radius;
-        float camZ = cos((float) glfwGetTime()) * radius;
-        // parameters definde at the top of program
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        // fov               aspect-ration   z-near, z-far
-        projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
-        // retrieve them to the shaders (3 different ways)
-        int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-        int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         ourShader.setMat4("projection", projection);
+
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("view", view);
         
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++)
