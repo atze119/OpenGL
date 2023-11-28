@@ -144,8 +144,8 @@
     <ClInclude Include="src\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\fragmentShader.glsl" />
-    <Text Include="src\vertexShader.glsl">
+    <None Include="Shader\fragmentShader.glsl" />
+    <Text Include="Shader\vertexShader.glsl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
@@ -154,7 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\fynnj\Downloads\container.jpg" />
-    <Image Include="src\awesomeface.png" />
+    <Image Include="Ressources\awesomeface.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
