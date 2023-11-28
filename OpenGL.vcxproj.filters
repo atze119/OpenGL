@@ -34,12 +34,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\fragmentShader.glsl">
+    <None Include="Shader\fragmentShader.glsl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="src\vertexShader.glsl">
+    <Text Include="Shader\vertexShader.glsl">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <Image Include="C:\Users\fynnj\Downloads\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src\awesomeface.png">
+    <Image Include="Ressources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

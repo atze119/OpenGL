@@ -63,7 +63,7 @@ int main(void)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Needed to use absolute path... maybe change the linking in project or something. The file were searched in the wrong folder
-    Shader ourShader("src\\vertexShader.glsl", "src\\fragmentShader.glsl");
+    Shader ourShader("Shader\\vertexShader.glsl", "Shader\\fragmentShader.glsl");
 
     float vertices[] = {
     // positions          texture coords
@@ -150,7 +150,7 @@ int main(void)
     // flip the y-axis of every image! Because image top coords are 0.0 and in openGL top coords 1.0
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
-    unsigned char* data = stbi_load("src\\container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load("Ressources\\container.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -170,7 +170,7 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    data = stbi_load("src\\awesomeface.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("Ressources\\awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
