@@ -17,18 +17,22 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
+// settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// camera
 Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse{ true };
 
-float mixValue = 0.01f;
-
+// timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+// smiley-visibility
+float mixValue = 0.01f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -78,12 +82,10 @@ void processInput(GLFWwindow* window)
             polygonModePressed = false;
         }
     }
-    
     if (glfwGetKey(window, GLFW_KEY_UP))
         mixValue += 0.01f;
     if (glfwGetKey(window, GLFW_KEY_DOWN))
         mixValue -= 0.01f;
-    const float cameraSpeed = 4.5f * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -130,7 +132,6 @@ int main(void)
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    // Needed to use absolute path... maybe change the linking in project or something. The file were searched in the wrong folder
     Shader ourShader("Shader\\vertexShader.glsl", "Shader\\fragmentShader.glsl");
 
     float vertices[] = {
@@ -178,24 +179,14 @@ int main(void)
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3, // second triangle
-    };
-
-    // Vertex Buffer Object
-    unsigned int VBO, VAO, EBO;
+    // Vertex Buffer Object, Vertex Array Object
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
     
-    // first triangle setup
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
   
     // position attribute
     // Parameters: layout (location=0), position = vec3, type of data, normalize data, stride, offset
@@ -251,8 +242,7 @@ int main(void)
     stbi_image_free(data);
 
     ourShader.use();
-    // 2-different ways! (both valid)
-    glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+    ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
 
     // 10 cubes
@@ -268,14 +258,6 @@ int main(void)
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-
-    //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    //glm::vec3 cameraDirection{ glm::normalize(cameraPos - cameraTarget) };
-    //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    //glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection)); // cross-product
-    //glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -328,7 +310,6 @@ int main(void)
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;

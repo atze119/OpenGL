@@ -23,9 +23,6 @@ class Camera
 {
 public:
 	// camera attributes
-	// TODO: change these a constant value from window size -> make window size constant
-	bool firstMouse{ true };
-
 	glm::vec3 Position;
 	glm::vec3 Front;
 	glm::vec3 Up;
@@ -66,7 +63,6 @@ public:
 	{
 		return glm::lookAt(Position, Position + Front, Up);
 	}
-
 
 	void ProcessMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch = true)
 	{

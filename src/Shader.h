@@ -25,9 +25,6 @@ public:
 		fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		try
 		{
-			std::cout << vertexPath <<"\n";
-			std::cout << fragmentPath <<"\n";
-
 			// open files
 			vShaderFile.open(vertexPath);
 			fShaderFile.open(fragmentPath);
