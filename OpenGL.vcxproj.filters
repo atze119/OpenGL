@@ -32,11 +32,16 @@
     <ClInclude Include="src\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\fragmentShader.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="shader\lightFragShader.glsl" />
+    <None Include="shader\lightVertShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shader\vertexShader.glsl">

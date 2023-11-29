@@ -146,6 +146,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\fragmentShader.glsl" />
+    <None Include="shader\lightFragShader.glsl" />
+    <None Include="shader\lightVertShader.glsl" />
     <Text Include="Shader\vertexShader.glsl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
