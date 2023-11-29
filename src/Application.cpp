@@ -178,18 +178,6 @@ int main(void)
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
-    float floorVertices[] = {
-        // positions
-        0.5f, 0.5f, 0.0f,   // top-right
-        0.5, -0.5f, 0.0f,   // bottom-right
-        -0.5f, -0.5f, 0.0f, // bottom-left
-        -0.5f, 0.5f, 0.0f,  // top-left
-    };
-
-    float floorIndices[] = {
-        0, 1, 2,
-        1, 2, 3,
-    };
 
     // Vertex Buffer Object, Vertex Array Object
     unsigned int VBO, VAO;
