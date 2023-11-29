@@ -178,15 +178,28 @@ int main(void)
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
+    float floorVertices[] = {
+        // positions
+        0.5f, 0.5f, 0.0f,   // top-right
+        0.5, -0.5f, 0.0f,   // bottom-right
+        -0.5f, -0.5f, 0.0f, // bottom-left
+        -0.5f, 0.5f, 0.0f,  // top-left
+    };
+
+    float floorIndices[] = {
+        0, 1, 2,
+        1, 2, 3,
+    };
 
     // Vertex Buffer Object, Vertex Array Object
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO); // stores buffer and vertex attributes
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
   
     // position attribute
     // Parameters: layout (location=0), position = vec3, type of data, normalize data, stride, offset
@@ -259,6 +272,7 @@ int main(void)
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -277,13 +291,14 @@ int main(void)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         ourShader.setFloat("mixParam", mixValue);
-
+        // camera
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         ourShader.setMat4("projection", projection);
 
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
         
+        // add model
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -308,8 +323,8 @@ int main(void)
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(2, &VAO);
+    glDeleteBuffers(2, &VBO);
 
     glfwTerminate();
     return 0;

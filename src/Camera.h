@@ -115,6 +115,8 @@ public:
 			std::cout << "ERROR: No valid camera movement!";
 			break;
 		}
+		// made the camera to a true fps camera not fly-like
+		Position.y = 0.0f;
 	}
 
 private:
