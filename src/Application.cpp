@@ -59,6 +59,7 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yOffset));
 }
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 bool polygonModePressed = false;
 void processInput(GLFWwindow* window)
@@ -87,9 +88,16 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
-
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        lightPos.x += 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        lightPos.x -= 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        lightPos.y += 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        lightPos.y -= 0.1f;
 }
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 int main(void)
 {
     GLFWwindow* window;
@@ -130,67 +138,70 @@ int main(void)
     Shader lightCubeShader("shader\\lightVertShader.glsl", "shader\\lightFragShader.glsl");
 
     float vertices[] = {
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
     // Vertex Buffer Object, Vertex Array Object
     unsigned int VBO, cubeVAO; // colored cube
-    glGenVertexArrays(1, &cubeVAO);
+    // bind the data to the buffer
     glGenBuffers(1, &VBO);
-    
-    glBindVertexArray(cubeVAO); // stores buffer and vertex attributes
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // position attribute
+    glGenVertexArrays(1, &cubeVAO);
+    glBindVertexArray(cubeVAO); // stores buffer and vertex attributes
     // Parameters: layout (location=0), position = vec3, type of data, normalize data, stride, offset
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     unsigned int lightCubeVAO; // light source cube
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     /* Loop until the user closes the window */
@@ -210,6 +221,7 @@ int main(void)
         lightingShader.use();
         lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightPos", lightPos);
         // camera
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
