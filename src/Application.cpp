@@ -229,7 +229,6 @@ int main(void)
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
 
-        
         // add model
         glBindVertexArray(cubeVAO);
         glm::mat4 model = glm::mat4(1.0f);
@@ -237,12 +236,17 @@ int main(void)
         // 36 vertices for one box
         glDrawArrays(GL_TRIANGLES, 0, 36);
        
+        // add light source
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
 
         model = glm::mat4(1.0f);
         // lightPos declard infront of main
+        const float radius = 5.0f;
+        lightPos.x = sin(glfwGetTime()) * radius;
+        lightPos.z = cos(glfwGetTime()) * radius;
+        lightPos.y = sin(glfwGetTime() / 2.0f) * radius;
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
         lightCubeShader.setMat4("model", model);
