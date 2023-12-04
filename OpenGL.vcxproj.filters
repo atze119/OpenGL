@@ -37,14 +37,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader\fragmentShader.glsl">
+    <None Include="Shader\materialFragShader.glsl">
       <Filter>Source Files</Filter>
     </None>
     <None Include="shader\lightFragShader.glsl" />
     <None Include="shader\lightVertShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shader\vertexShader.glsl">
+    <Text Include="Shader\materialVertShader.glsl">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -52,7 +52,16 @@
     <Image Include="C:\Users\fynnj\Downloads\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Ressources\awesomeface.png">
+    <Image Include="resources\textures\awesomeface.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\container2_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
