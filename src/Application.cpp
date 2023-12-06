@@ -65,6 +65,8 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 bool polygonModePressed = false;
 void processInput(GLFWwindow* window)
 {
+    float speedMultiplier = 3.0f;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE))
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -81,14 +83,32 @@ void processInput(GLFWwindow* window)
             polygonModePressed = false;
         }
     }
+    // Movements
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+    {
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime * speedMultiplier);
+        else
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+    }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    {
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime * speedMultiplier);
+        else
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+    }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime * speedMultiplier);
+        else
+            camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime * speedMultiplier);
+        else
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+    // light-movement
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         lightPos.x += 0.1f;
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -97,6 +117,11 @@ void processInput(GLFWwindow* window)
         lightPos.y += 0.1f;
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         lightPos.y -= 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+        if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
+            glfwRestoreWindow(window);
+        else
+            glfwMaximizeWindow(window);
 }
 
 unsigned int loadTexture(const char* path)
@@ -176,7 +201,6 @@ int main(void)
     Shader lightCubeShader("shader\\lightVertShader.glsl", "shader\\lightFragShader.glsl");
 
 
-
     float vertices[] = {
         // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
@@ -251,10 +275,26 @@ int main(void)
 
     unsigned int diffuseMap = loadTexture("resources\\textures\\container2.png");
     unsigned int specularMap = loadTexture("resources\\textures\\container2_specular.png");
+    unsigned int emissionMap = loadTexture("resources\\textures\\matrix.jpg");
+    // shader configuration
     lightingShader.use();
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
+    lightingShader.setInt("material.emission", 2);
    
+
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -271,24 +311,17 @@ int main(void)
         // bind textures on corresponding texture units
 
         lightingShader.use();
-        lightingShader.setVec3("material.ambient", 0.0f, 0.1f, 0.06f);
-        lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-        lightingShader.setFloat("material.shininess", 64.0f);
-
-        // light color
-        /*glm::vec3 lightColor;
-        lightColor.x = sin(glfwGetTime() * 2.0f);
-        lightColor.y = sin(glfwGetTime() * 0.7f);
-        lightColor.z = sin(glfwGetTime() * 1.3f);
-        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);*/
+        lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+        lightingShader.setVec3("viewPos", camera.Position);
+       /* lightingShader.setVec3("material.ambient", 0.2f, 0.2f, 0.2f);
+        lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);*/
 
         lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
-        lightingShader.setVec3("lightPos", lightPos);
-        lightingShader.setVec3("viewPos", camera.Position);
+        lightingShader.setFloat("material.shininess", 64.0f);
+
         // camera
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
@@ -298,36 +331,48 @@ int main(void)
         // add model / world transformation
         glm::mat4 model = glm::mat4(1.0f);
         lightingShader.setMat4("model", model);
-
         // bind diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap); 
         // bind specular map
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
+        // bind emission map
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         // 36 vertices for one box
         glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            lightingShader.setMat4("model", model);
+            //lightingShader.setVec3("light.direction", -lightPos.x, -lightPos.y, -lightPos.z);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
        
-        // add light source
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-        // light source color
-        lightCubeShader.setVec3("color", 1.0f, 1.0f, 1.0f);
+        // TODO: Right now we dont want to render a specific light source because of the directional light -> global light source like a sun
+        //// add light source
+        //lightCubeShader.use();
+        //lightCubeShader.setMat4("projection", projection);
+        //lightCubeShader.setMat4("view", view);
+        //// light source color
+        //lightCubeShader.setVec3("color", 1.0f, 1.0f, 1.0f);
 
-        model = glm::mat4(1.0f);
-        // lightPos declard infront of main
-        const float radius = 5.0f;
-        lightPos.x = sin((float)glfwGetTime()) * radius;
-        lightPos.z = cos((float)glfwGetTime()) * radius;
-        lightPos.y = sin((float)glfwGetTime() / 2.0f) * radius;
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        lightCubeShader.setMat4("model", model);
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //model = glm::mat4(1.0f);
+        //// lightPos declard infront of main
+        //const float radius = 5.0f;
+        //lightPos.x = sin((float)glfwGetTime()) * radius;
+        //lightPos.z = cos((float)glfwGetTime()) * radius;
+        //lightPos.y = sin((float)glfwGetTime() / 2.0f) * radius;
+        //model = glm::translate(model, lightPos);
+        //model = glm::scale(model, glm::vec3(0.2f));
+        //lightCubeShader.setMat4("model", model);
+        //glBindVertexArray(lightCubeVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // User input
         processInput(window);
