@@ -315,8 +315,16 @@ int main(void)
         // bind textures on corresponding texture units
 
         lightingShader.use();
-        lightingShader.setVec3("light.position", lightPos);
+        //lightingShader.setVec3("light.position", lightPos);
+
+        // Spotlight / Flashlight
+        lightingShader.setVec3("light.position", camera.Position);
+        lightingShader.setVec3("light.direction", camera.Front);
+        lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+
         lightingShader.setVec3("viewPos", camera.Position);
+
        /* lightingShader.setVec3("material.ambient", 0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);*/
 
@@ -359,7 +367,7 @@ int main(void)
         }
        
         // TODO: Right now we dont want to render a specific light source because of the directional light -> global light source like a sun
-        //// add light source
+        // add light source
         //lightCubeShader.use();
         //lightCubeShader.setMat4("projection", projection);
         //lightCubeShader.setMat4("view", view);
