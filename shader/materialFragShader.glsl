@@ -9,11 +9,15 @@ struct Material {
 }; 
 
 struct Light {
-    // vec3 position; no longer  needed because of direction
-    vec3 direction;
+    vec3 position;
+    
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 in vec3 FragPos;  
@@ -26,11 +30,14 @@ uniform Light light;
 
 void main()
 {
+    float distance = length(light.position - FragPos); // retrieves the distance between lightsource and fragment
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
     // ambient
     vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
     // diffuse 
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(-light.direction);
+    vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;  
     
@@ -49,6 +56,11 @@ void main()
 //        vec3 emissionMask = step(vec3(1.0f), vec3(1.0f)-texture(material.specular, TexCoords).rgb);
 //        emission *= emissionMask;
     }
+
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+
     vec3 result = ambient + diffuse + specular + emission;
     FragColor = vec4(result, 1.0);
 } 
