@@ -32,145 +32,6 @@ bool firstMouse{ true };
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
-{
-    float xPos = static_cast<float>(xPosIn);
-    float yPos = static_cast<float>(yPosIn);
-
-    if (firstMouse)
-    {
-        lastX = xPos;
-        lastY = yPos;
-        firstMouse = false;
-    }
-    float xOffset = xPos - lastX;
-    float yOffset = lastY - yPos; // reversed because y-coordinates go from bottom to top
-    lastX = xPos;
-    lastY = yPos;
-
-    camera.ProcessMouseMovement(xOffset, yOffset);
-}
-
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
-{
-    camera.ProcessMouseScroll(static_cast<float>(yOffset));
-}
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
-bool polygonModePressed = false;
-void processInput(GLFWwindow* window)
-{
-    float sprintMultiplier = 3.0f;
-    float sneakMultiplier = 0.5f;
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE))
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-        if (polygonModePressed == false)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            polygonModePressed = true;
-            // TODO: add a cooldown timer
-        }
-        else
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            polygonModePressed = false;
-        }
-    }
-    // Movements
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-    // light-movement
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        lightPos.x += 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        lightPos.x -= 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        lightPos.y += 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        lightPos.y -= 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
-        if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
-            glfwRestoreWindow(window);
-        else
-            glfwMaximizeWindow(window);
-    
-}
-
-unsigned int loadTexture(const char* path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-        else
-            format = 0;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-    }
-    stbi_image_free(data);
-
-    return textureID;
-}
-
 int main(void)
 {
     GLFWwindow* window;
@@ -312,7 +173,7 @@ int main(void)
     };
 
     glm::vec3 pointLightPositions[] = {
-        glm::vec3(0.7f,  0.2f,  2.0f),
+    glm::vec3(0.7f,  0.2f,  2.0f),
     glm::vec3(2.3f, -3.3f, -4.0f),
     glm::vec3(-4.0f,  2.0f, -12.0f),
     glm::vec3(0.0f,  0.0f, -3.0f)
@@ -344,9 +205,9 @@ int main(void)
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
         // point light 1
         lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
-        lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f); // <- Change these values to set the color!
+        lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f); // <- Change these values to set the color!
+        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f); // <- Change these values to set the color!
         lightingShader.setFloat("pointLights[0].constant", 1.0f);
         lightingShader.setFloat("pointLights[0].linear", 0.09f);
         lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
@@ -444,7 +305,7 @@ int main(void)
             model = glm::translate(model, pointLightPositions[i]);
             model = glm::scale(model, glm::vec3(0.2f));
             lightCubeShader.setMat4("model", model);
-            lightCubeShader.setVec3("color", 1.0f, 1.0f, 1.0f);
+            lightCubeShader.setVec3("color", 1.0f, 1.0f, 1.0f); // changes the block color
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
@@ -476,4 +337,143 @@ int main(void)
 
     glfwTerminate();
     return 0;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
+{
+    float xPos = static_cast<float>(xPosIn);
+    float yPos = static_cast<float>(yPosIn);
+
+    if (firstMouse)
+    {
+        lastX = xPos;
+        lastY = yPos;
+        firstMouse = false;
+    }
+    float xOffset = xPos - lastX;
+    float yOffset = lastY - yPos; // reversed because y-coordinates go from bottom to top
+    lastX = xPos;
+    lastY = yPos;
+
+    camera.ProcessMouseMovement(xOffset, yOffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yOffset));
+}
+
+bool polygonModePressed = false;
+void processInput(GLFWwindow* window)
+{
+    float sprintMultiplier = 3.0f;
+    float sneakMultiplier = 0.5f;
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE))
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        if (polygonModePressed == false)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            polygonModePressed = true;
+            // TODO: add a cooldown timer
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            polygonModePressed = false;
+        }
+    }
+    // Movements
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime * sprintMultiplier);
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            camera.ProcessKeyboard(FORWARD, deltaTime * sneakMultiplier);
+        else
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime * sprintMultiplier);
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            camera.ProcessKeyboard(BACKWARD, deltaTime * sneakMultiplier);
+        else
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime * sprintMultiplier);
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            camera.ProcessKeyboard(LEFT, deltaTime * sneakMultiplier);
+        else
+            camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime * sprintMultiplier);
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            camera.ProcessKeyboard(RIGHT, deltaTime * sneakMultiplier);
+        else
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+    // light-movement
+    // TODO: This needs to be implemented
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        // lightPos.x += 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        //lightPos.x -= 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        //lightPos.y += 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        //lightPos.y -= 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+        if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
+            glfwRestoreWindow(window);
+        else
+            glfwMaximizeWindow(window);
+
+}
+
+unsigned int loadTexture(const char* path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+        else
+            format = 0;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+    }
+    stbi_image_free(data);
+
+    return textureID;
 }
