@@ -71,12 +71,16 @@ int main(void)
 
     // Define shader
     Shader ourShader("Shader\\modelVertexShader.glsl", "Shader\\modelFragShader.glsl");
-    Shader lightShader("Shader\\lightVertexShader.glsl", "Shader\\lightFragShader.glsl");
+    //Shader lightShader("Shader\\lightVertexShader.glsl", "Shader\\lightFragShader.glsl");
 
     // load model
     Model ourModel("resources\\models\\backpack.obj");
     // activating the shader before render because we dont change the activated shader in render loop (doesn't need to be reactivated every frame)
     ourShader.use();
+    float strength{ 0.8f };
+    ourShader.setVec3("light.position", 0.0f, 0.0f, 3.f);
+    //ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -86,7 +90,8 @@ int main(void)
         /* Render here */
         // To enable z-buffer (depth)
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // this is a state setting function
+        // 0.2f, 0.3f, 0.3f,
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // this is a state setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // this is a state using function
 
         // camera
@@ -94,8 +99,24 @@ int main(void)
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
+        ourShader.setVec3("viewPos", camera.Position);
+        ourShader.setFloat("shininess", 32.0f);
 
-  
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        {
+            strength += 0.01f;
+        }
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        {
+            strength -= 0.01f;
+        }
+         ourShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+         ourShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+         ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+         ourShader.setFloat("light.constant", 1.0f);
+         ourShader.setFloat("light.linear", 0.09f);
+         ourShader.setFloat("light.quadratic", 0.032f);
+
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(1.0f, 1.0f, -3.0f));

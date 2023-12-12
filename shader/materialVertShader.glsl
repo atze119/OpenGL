@@ -13,7 +13,7 @@ uniform mat4 projection;
 
 void main()
 {
-    FragPos = vec3(model * vec4(aPos, 1.0)); 
+    FragPos = vec3(model * vec4(aPos, 1.0f)); 
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
     // inverse calculations are expensive and should be avoided at best.
     // maybe do the calculations in Application.cpp so the cpu does them and then set them to "model"
