@@ -158,9 +158,6 @@
     <ClInclude Include="dependencies\assimp\LogStream.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\assimp\material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dependencies\assimp\MathFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -278,6 +275,24 @@
     <ClInclude Include="dependencies\assimp\ZipArchiveIOSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\assimp\material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\assimp\Compiler\poppack1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\assimp\Compiler\pstdint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\assimp\Compiler\pushpack1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\assimp\port\AndroidJNI\AndroidJNIIOSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\assimp\port\AndroidJNI\BundledAssetIOSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\materialFragShader.glsl">
@@ -309,6 +324,11 @@
     <None Include="dependencies\assimp\vector3.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="shader\modelVertexShader.glsl" />
+    <None Include="shader\modelFragShader.glsl" />
+    <None Include="dependencies\assimp\.editorconfig" />
+    <None Include="dependencies\assimp\config.h.in" />
+    <None Include="dependencies\assimp\lib\assimp-vc143-mtd.dll" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shader\materialVertShader.glsl">

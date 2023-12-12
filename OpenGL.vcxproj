@@ -104,14 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies;$(SolutionDir)dependencies\assimp\include;F:\dev\Visual Studio\source\repos\OpenGL\OpenGL\dependencies\assimp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies;$(SolutionDir)dependencies\assimp\include;$(SolutionDIr)dependencies\assimp</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022;$(SolutionDir)dependencies\assimp</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022;$(SolutionDir)dependencies\assimp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;assimp-vc143-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies;$(SolutionDir)dependencies\assimp\include;F:\dev\Visual Studio\source\repos\OpenGL\OpenGL\dependencies\assimp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies;$(SolutionDir)dependencies\assimp\include;$(SolutionDIr)dependencies\assimp</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
@@ -130,8 +130,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022;$(SolutionDir)dependencies\assimp</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022;$(SolutionDir)dependencies\assimp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;assimp-vc143-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -155,6 +155,9 @@
     <ClInclude Include="dependencies\assimp\ColladaMetaData.h" />
     <ClInclude Include="dependencies\assimp\color4.h" />
     <ClInclude Include="dependencies\assimp\commonMetaData.h" />
+    <ClInclude Include="dependencies\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="dependencies\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="dependencies\assimp\Compiler\pushpack1.h" />
     <ClInclude Include="dependencies\assimp\config.h" />
     <ClInclude Include="dependencies\assimp\CreateAnimMesh.h" />
     <ClInclude Include="dependencies\assimp\DefaultIOStream.h" />
@@ -188,6 +191,8 @@
     <ClInclude Include="dependencies\assimp\ObjMaterial.h" />
     <ClInclude Include="dependencies\assimp\ParsingUtils.h" />
     <ClInclude Include="dependencies\assimp\pbrmaterial.h" />
+    <ClInclude Include="dependencies\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
+    <ClInclude Include="dependencies\assimp\port\AndroidJNI\BundledAssetIOSystem.h" />
     <ClInclude Include="dependencies\assimp\postprocess.h" />
     <ClInclude Include="dependencies\assimp\Profiler.h" />
     <ClInclude Include="dependencies\assimp\ProgressHandler.hpp" />
@@ -226,7 +231,10 @@
     <ClInclude Include="src\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dependencies\assimp\.editorconfig" />
     <None Include="dependencies\assimp\color4.inl" />
+    <None Include="dependencies\assimp\config.h.in" />
+    <None Include="dependencies\assimp\lib\assimp-vc143-mtd.dll" />
     <None Include="dependencies\assimp\material.inl" />
     <None Include="dependencies\assimp\matrix3x3.inl" />
     <None Include="dependencies\assimp\matrix4x4.inl" />
@@ -237,6 +245,8 @@
     <None Include="Shader\materialFragShader.glsl" />
     <None Include="shader\lightFragShader.glsl" />
     <None Include="shader\lightVertShader.glsl" />
+    <None Include="shader\modelFragShader.glsl" />
+    <None Include="shader\modelVertexShader.glsl" />
     <Text Include="Shader\materialVertShader.glsl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

@@ -1,7 +1,9 @@
 #pragma once
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "stb_image.h"
 #include "Shader.h"
 #include "Mesh.h"
-#include "stb_image.h"
 
 #include <glad/glad.h>
 
@@ -19,11 +21,18 @@
 #include <vector>
 #include <string>
 
+// unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
 class Model {
 public:
 
-	Model(char* path) {
+	// model data
+	std::vector<Texture> textures_loaded;
+	std::vector<Mesh> meshes;
+	std::string directory;
+	bool gammaCorrection;
+
+	Model(std::string const& path, bool gamma = false) : gammaCorrection(gamma) {
 		loadModel(path);
 	}
 
@@ -36,21 +45,17 @@ public:
 	}
 
 private:
-	// model data
-	std::vector<Mesh> meshes;
-	std::string directory;
-	std::vector<Texture> textures_loaded;
 	
 	void loadModel(std::string path)
 	{
-		Assimp::Importer import;					// extra calculations
-		const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+		Assimp::Importer importer;					// extra calculations
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
-			std::cout << "Error::ASSIMP::" << import.GetErrorString() << std::endl;
+			std::cout << "Error::ASSIMP::" << importer.GetErrorString() << std::endl;
 			return;
 		}
-		directory = path.substr(0, path.find_last_of("/"));
+		directory = path.substr(0, path.find_last_of("\\"));
 
 		processNode(scene->mRootNode, scene);
 	}
@@ -89,10 +94,13 @@ private:
 			vertex.Position = vector;
 
 			// vertex normals
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertex.Normal = vector;
+			if (mesh->HasNormals())
+			{
+				vector.x = mesh->mNormals[i].x;
+				vector.y = mesh->mNormals[i].y;
+				vector.z = mesh->mNormals[i].z;
+				vertex.Normal = vector;
+			}
 
 			// texture coordinates
 			if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
@@ -102,6 +110,16 @@ private:
 				vec.x = mesh->mTextureCoords[0][i].x;
 				vec.y = mesh->mTextureCoords[0][i].y;
 				vertex.TexCoords = vec;
+				// tangent
+				vector.x = mesh->mTangents[i].x;
+				vector.y = mesh->mTangents[i].y;
+				vector.z = mesh->mTangents[i].z;
+				vertex.Tangent = vector;
+				// bitangent
+				vector.x = mesh->mBitangents[i].x;
+				vector.y = mesh->mBitangents[i].y;
+				vector.z = mesh->mBitangents[i].z;
+				vertex.Bittangent = vector;
 			}
 			else
 				vertex.TexCoords = glm::vec2(0.0f);
@@ -119,15 +137,22 @@ private:
 			}
 		}
 		// retrieve material of a mesh
-		if (mesh->mMaterialIndex >= 0)
-		{
-			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			std::vector<Texture> diffuseMap = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-			textures.insert(textures.end(), diffuseMap.begin(), diffuseMap.end());
-			std::vector<Texture> specularMap = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-			textures.insert(textures.end(), specularMap.begin(), specularMap.end());
-
-		}
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		// 1. diffuse maps
+		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		// 2. specular maps
+		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+		// 3. normal maps
+		std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+		// 4. height maps
+		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+		
+		// return a mesh object created from the extracted mesh data
+		return Mesh(vertices, indices, textures);
 	}
 	// helper function to load and initialize textures from material
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
@@ -150,10 +175,11 @@ private:
 			if (!skip_texture)
 			{ // if texture hasn't been loaded, load it
 				Texture texture;
-				texture.id = TextureFromFile(str.C_Str(), directory);
+				texture.id = TextureFromFile(str.C_Str(), this->directory, gammaCorrection);
 				texture.type = typeName;
 				texture.path = str.C_Str();
 				textures.push_back(texture);
+				textures_loaded.push_back(texture);
 			}
 		}
 		return textures;
@@ -162,7 +188,7 @@ private:
 	unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma) 
 	{
 		std::string filename = std::string(path);
-		filename = directory + "/" + filename;
+		filename = directory + "\\" + filename;
 
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
