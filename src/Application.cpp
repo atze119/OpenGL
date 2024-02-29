@@ -70,11 +70,16 @@ int main(void)
     stbi_set_flip_vertically_on_load(1);
 
     // Define shader
-    Shader ourShader("Shader\\modelVertexShader.glsl", "Shader\\modelFragShader.glsl");
-    //Shader lightShader("Shader\\lightVertexShader.glsl", "Shader\\lightFragShader.glsl");
+    Shader ourShader("Shader\\model\\modelVertexShader.glsl", "Shader\\model\\modelFragShader.glsl");
+    //Shader lightShader("Shader\\light\\lightVertexShader.glsl", "Shader\\light\\lightFragShader.glsl");
+
+
+    // Fragment shaders are expensive to run, so if we dont need them we should avoid them at most
+    //Shader materialShader("Shader\\material\\materialFragShader.glsl", "Shader\\material\\materialFragShader.glsl");
+
 
     // load model
-    Model ourModel("resources\\models\\backpack.obj");
+    Model ourModel("resources\\models\\backpack\\backpack.obj");
     // activating the shader before render because we dont change the activated shader in render loop (doesn't need to be reactivated every frame)
     ourShader.use();
     float strength{ 0.8f };

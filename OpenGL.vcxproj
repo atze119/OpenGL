@@ -242,12 +242,12 @@
     <None Include="dependencies\assimp\SmoothingGroups.inl" />
     <None Include="dependencies\assimp\vector2.inl" />
     <None Include="dependencies\assimp\vector3.inl" />
-    <None Include="Shader\materialFragShader.glsl" />
-    <None Include="shader\lightFragShader.glsl" />
-    <None Include="shader\lightVertShader.glsl" />
-    <None Include="shader\modelFragShader.glsl" />
-    <None Include="shader\modelVertexShader.glsl" />
-    <Text Include="Shader\materialVertShader.glsl">
+    <None Include="shader\material\materialFragShader.glsl" />
+    <None Include="shader\light\lightFragShader.glsl" />
+    <None Include="shader\light\lightVertShader.glsl" />
+    <None Include="shader\model\modelFragShader.glsl" />
+    <None Include="shader\model\modelVertexShader.glsl" />
+    <Text Include="shader\material\materialVertShader.glsl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>

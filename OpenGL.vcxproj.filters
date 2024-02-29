@@ -295,11 +295,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader\materialFragShader.glsl">
+    <None Include="shader\material\materialFragShader.glsl">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shader\lightFragShader.glsl" />
-    <None Include="shader\lightVertShader.glsl" />
+    <None Include="shader\light\lightFragShader.glsl" />
+    <None Include="shader\light\lightVertShader.glsl" />
     <None Include="dependencies\assimp\color4.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -324,14 +324,14 @@
     <None Include="dependencies\assimp\vector3.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="shader\modelVertexShader.glsl" />
-    <None Include="shader\modelFragShader.glsl" />
+    <None Include="shader\model\modelVertexShader.glsl" />
+    <None Include="shader\model\modelFragShader.glsl" />
     <None Include="dependencies\assimp\.editorconfig" />
     <None Include="dependencies\assimp\config.h.in" />
     <None Include="dependencies\assimp\lib\assimp-vc143-mtd.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shader\materialVertShader.glsl">
+    <Text Include="shader\material\materialVertShader.glsl">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
