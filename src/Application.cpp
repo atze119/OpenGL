@@ -364,6 +364,12 @@ int main(void)
         glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 1);
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 2);
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 3);
         // 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
         // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing 
         // the objects' size differences, making it look like borders.
