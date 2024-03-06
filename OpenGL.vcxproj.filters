@@ -295,11 +295,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\material\materialFragShader.glsl">
+    <None Include="Shader\material\materialFragShader.glsl">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shader\light\lightFragShader.glsl" />
-    <None Include="shader\light\lightVertShader.glsl" />
+    <None Include="Shader\light\lightFragShader.glsl" />
+    <None Include="Shader\light\lightVertShader.glsl" />
     <None Include="dependencies\assimp\color4.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -324,14 +324,17 @@
     <None Include="dependencies\assimp\vector3.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="shader\model\modelVertexShader.glsl" />
-    <None Include="shader\model\modelFragShader.glsl" />
+    <None Include="Shader\model\modelVertexShader.glsl" />
+    <None Include="Shader\model\modelFragShader.glsl" />
     <None Include="dependencies\assimp\.editorconfig" />
     <None Include="dependencies\assimp\config.h.in" />
     <None Include="dependencies\assimp\lib\assimp-vc143-mtd.dll" />
+    <None Include="Shader\depthTestingFrag.glsl" />
+    <None Include="Shader\depthTestingVert.glsl" />
+    <None Include="Shader\shaderSingleColor.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shader\material\materialVertShader.glsl">
+    <Text Include="Shader\material\materialVertShader.glsl">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -355,6 +358,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\textures\matrix.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\blending_transparent_window.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\grass.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

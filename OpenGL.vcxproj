@@ -242,12 +242,15 @@
     <None Include="dependencies\assimp\SmoothingGroups.inl" />
     <None Include="dependencies\assimp\vector2.inl" />
     <None Include="dependencies\assimp\vector3.inl" />
-    <None Include="shader\material\materialFragShader.glsl" />
-    <None Include="shader\light\lightFragShader.glsl" />
-    <None Include="shader\light\lightVertShader.glsl" />
-    <None Include="shader\model\modelFragShader.glsl" />
-    <None Include="shader\model\modelVertexShader.glsl" />
-    <Text Include="shader\material\materialVertShader.glsl">
+    <None Include="Shader\depthTestingVert.glsl" />
+    <None Include="Shader\depthTestingFrag.glsl" />
+    <None Include="Shader\material\materialFragShader.glsl" />
+    <None Include="Shader\light\lightFragShader.glsl" />
+    <None Include="Shader\light\lightVertShader.glsl" />
+    <None Include="Shader\model\modelFragShader.glsl" />
+    <None Include="Shader\model\modelVertexShader.glsl" />
+    <None Include="Shader\shaderSingleColor.glsl" />
+    <Text Include="Shader\material\materialVertShader.glsl">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
@@ -257,9 +260,11 @@
   <ItemGroup>
     <Image Include="C:\Users\fynnj\Downloads\container.jpg" />
     <Image Include="resources\textures\awesomeface.png" />
+    <Image Include="resources\textures\blending_transparent_window.png" />
     <Image Include="resources\textures\container.jpg" />
     <Image Include="resources\textures\container2.png" />
     <Image Include="resources\textures\container2_specular.png" />
+    <Image Include="resources\textures\grass.png" />
     <Image Include="resources\textures\lighting_maps_specular_color.png" />
     <Image Include="resources\textures\matrix.jpg" />
   </ItemGroup>
