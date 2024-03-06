@@ -170,6 +170,16 @@ int main(void)
          1.0f,  1.0f,  1.0f, 1.0f
     };
 
+    float mirrorVertices[] = {
+        -0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 1.0f, 0.0f,
+
+        -0.5f, 0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 1.0f, 1.0f
+    };
+
     std::vector<glm::vec3> windows;
     windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
     windows.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
