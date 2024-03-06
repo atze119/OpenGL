@@ -83,53 +83,59 @@ int main(void)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Shader shader = Shader("Shader\\depthTestingVert.glsl", "Shader\\depthTestingFrag.glsl");
+    //// face-culling
+    //glEnable(GL_CULL_FACE);
+    //glFrontFace(GL_CW);
+    //glCullFace(GL_BACK);
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
+    Shader shader = Shader("Shader\\depthTestingVert.glsl", "Shader\\depthTestingFrag.glsl");
+    Shader screenShader = Shader("Shader\\bufferTestingVert.glsl", "Shader\\bufferTestingFrag.glsl");
+
+    // set up vertex data (and buffer(s)) and configure vertex attributes. Now clockwise and counter-clockwise for face-culling
     // ------------------------------------------------------------------
     float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        // Back face
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right    
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right              
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left                
+        // Front face
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right        
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left        
+        // Left face
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left       
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+        // Right face
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right      
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right          
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+         // Bottom face          
+         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+          0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+          0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left        
+          0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+         // Top face
+         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+          0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+          0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right                 
+          0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, // bottom-left  
+         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f  // top-left              
     };
     float planeVertices[] = {
         // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
@@ -153,6 +159,27 @@ int main(void)
         1.0f,  0.5f,  0.0f,  1.0f,  1.0f
     };
 
+    float screenVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+    float mirrorVertices[] = {
+        -0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 1.0f, 0.0f,
+
+        -0.5f, 0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 1.0f, 1.0f
+    };
+
     std::vector<glm::vec3> windows;
     windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
     windows.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
@@ -171,7 +198,7 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
+    //glBindVertexArray(0);
     // floor buffers
     unsigned int planeVAO, planeVBO;
     glGenVertexArrays(1, &planeVAO);
@@ -183,9 +210,9 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
+    //glBindVertexArray(0);
 
-    // grass buffers
+    // window
     unsigned int windowVAO, windowVBO;
     glGenVertexArrays(1, &windowVAO);
     glGenBuffers(1, &windowVBO);
@@ -196,11 +223,24 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
+    //glBindVertexArray(0);
+
+    // screen-quad buffer
+    unsigned int screenVAO, screenVBO;
+    glGenVertexArrays(1, &screenVAO);
+    glGenBuffers(1, &screenVBO);
+    glBindVertexArray(screenVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), &screenVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    //glBindVertexArray(0);
 
     // load textures
-    unsigned int cubeTexture = loadTexture("resources\\textures\\awesomeface.png");
-    unsigned int planeTexture = loadTexture("resources\\textures\\container.jpg");
+    unsigned int cubeTexture = loadTexture("resources\\textures\\container.jpg");
+    unsigned int planeTexture = loadTexture("resources\\textures\\metal.png");
     unsigned int windowTexture = loadTexture("resources\\textures\\blending_transparent_window.png");
 
     // shader configuration
@@ -208,7 +248,41 @@ int main(void)
     shader.setInt("texture1", 0);
 
     Shader oneColorShader("Shader\\depthTestingVert.glsl", "Shader\\shaderSingleColor.glsl");
+    
+    screenShader.use();
+    screenShader.setInt("screenTexture", 0);
+    
+    unsigned int framebuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    // generate texture
+    unsigned int textureColorBuffer;
+    glGenTextures(1, &textureColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    // attach to current framebuffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
 
+    // create renderbuffer for depth and stencil testing
+    // allocating buffer memory
+    unsigned int renderbuffer;
+    glGenRenderbuffers(1, &renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+    // unbind buffer after allocating enough storage
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // attach renderbuffer to framebuffer
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    // unbind Framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -217,16 +291,19 @@ int main(void)
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
+       
         // input
         // -----
         processInput(window);
 
         // render
         // ------
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glEnable(GL_DEPTH_TEST);
+
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // don't forget to clear the stencil buffer!
-
+          
         // set uniforms
         oneColorShader.use();
         glm::mat4 model = glm::mat4(1.0f);
@@ -238,10 +315,6 @@ int main(void)
         shader.use();
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
-
-        // draw floor as normal, but don't write the floor to the stencil buffer, we only care about the containers. We set its mask to 0x00 to not write to the stencil buffer.
-        // floor
-        
 
         // 1st. render pass, draw objects as normal, writing to the stencil buffer
         // --------------------------------------------------------------------
@@ -267,10 +340,10 @@ int main(void)
         glBindVertexArray(planeVAO);
         glBindTexture(GL_TEXTURE_2D, planeTexture);
         model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(1.5, 1.5, 1.0));
         shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
-
 
         // To render each window from farthes to nearest
         std::map<float, glm::vec3> sorted;
@@ -289,7 +362,24 @@ int main(void)
             shader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-        
+
+        // bind framebuffer back to default
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        screenShader.use();
+        glBindVertexArray(screenVAO);
+        glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 1);
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 2);
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 3);
         // 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
         // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing 
         // the objects' size differences, making it look like borders.
@@ -327,8 +417,12 @@ int main(void)
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &planeVAO);
+    glDeleteVertexArrays(1, &screenVAO);
     glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &planeVBO);
+    glDeleteBuffers(1, &screenVBO);
+    glDeleteRenderbuffers(1, &renderbuffer);
+    glDeleteFramebuffers(1, &framebuffer);
 
     glfwTerminate();
     return 0;

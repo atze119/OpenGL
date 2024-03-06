@@ -332,6 +332,8 @@
     <None Include="Shader\depthTestingFrag.glsl" />
     <None Include="Shader\depthTestingVert.glsl" />
     <None Include="Shader\shaderSingleColor.glsl" />
+    <None Include="Shader\bufferTestingVert.glsl" />
+    <None Include="Shader\bufferTestingFrag.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shader\material\materialVertShader.glsl">
@@ -364,6 +366,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\textures\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\metal.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
