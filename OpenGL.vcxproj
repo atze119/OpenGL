@@ -242,23 +242,20 @@
     <None Include="dependencies\assimp\SmoothingGroups.inl" />
     <None Include="dependencies\assimp\vector2.inl" />
     <None Include="dependencies\assimp\vector3.inl" />
+    <None Include="resources\models\backpack\backpack.mtl" />
     <None Include="Shader\depthTestingVert.glsl" />
     <None Include="Shader\depthTestingFrag.glsl" />
-    <None Include="Shader\material\materialFragShader.glsl" />
-    <None Include="Shader\light\lightFragShader.glsl" />
-    <None Include="Shader\light\lightVertShader.glsl" />
-    <None Include="Shader\model\modelFragShader.glsl" />
-    <None Include="Shader\model\modelVertexShader.glsl" />
+    <None Include="shader\material\materialVertShader.glsl" />
     <None Include="Shader\shaderSingleColor.glsl" />
-    <Text Include="Shader\material\materialVertShader.glsl">
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </Text>
+    <Text Include="resources\models\backpack\source_attribution.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\fynnj\Downloads\container.jpg" />
+    <Image Include="resources\models\backpack\ao.jpg" />
+    <Image Include="resources\models\backpack\diffuse.jpg" />
+    <Image Include="resources\models\backpack\normal.png" />
+    <Image Include="resources\models\backpack\roughness.jpg" />
+    <Image Include="resources\models\backpack\specular.jpg" />
     <Image Include="resources\textures\awesomeface.png" />
     <Image Include="resources\textures\blending_transparent_window.png" />
     <Image Include="resources\textures\container.jpg" />
@@ -266,7 +263,12 @@
     <Image Include="resources\textures\container2_specular.png" />
     <Image Include="resources\textures\grass.png" />
     <Image Include="resources\textures\lighting_maps_specular_color.png" />
+    <Image Include="resources\textures\marble.jpg" />
     <Image Include="resources\textures\matrix.jpg" />
+    <Image Include="resources\textures\metal.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="resources\models\backpack\backpack.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
