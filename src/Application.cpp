@@ -161,23 +161,13 @@ int main(void)
 
     float screenVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+        -0.3f,  1.0f,  0.0f, 1.0f,
+        -0.3f,  0.7f,  0.0f, 0.0f,
+         0.3f,  0.7f,  1.0f, 0.0f,
 
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
-    };
-
-    float mirrorVertices[] = {
-        -0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 1.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 1.0f, 1.0f
+        -0.3f,  1.0f,  0.0f, 1.0f,
+         0.3f,  0.7f,  1.0f, 0.0f,
+         0.3f,  1.0f,  1.0f, 1.0f
     };
 
     std::vector<glm::vec3> windows;
@@ -198,7 +188,8 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    //glBindVertexArray(0);
+    glBindVertexArray(0);
+
     // floor buffers
     unsigned int planeVAO, planeVBO;
     glGenVertexArrays(1, &planeVAO);
@@ -210,7 +201,7 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    //glBindVertexArray(0);
+    glBindVertexArray(0);
 
     // window
     unsigned int windowVAO, windowVBO;
@@ -223,7 +214,7 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    //glBindVertexArray(0);
+    glBindVertexArray(0);
 
     // screen-quad buffer
     unsigned int screenVAO, screenVBO;
@@ -236,7 +227,8 @@ int main(void)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    //glBindVertexArray(0);
+    glBindVertexArray(0);
+
 
     // load textures
     unsigned int cubeTexture = loadTexture("resources\\textures\\container.jpg");
@@ -262,9 +254,9 @@ int main(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glBindTexture(GL_TEXTURE_2D, 0);
     // attach to current framebuffer
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
 
     // create renderbuffer for depth and stencil testing
     // allocating buffer memory
@@ -282,7 +274,8 @@ int main(void)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     // unbind Framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
+   
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -304,10 +297,15 @@ int main(void)
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // don't forget to clear the stencil buffer!
           
+        // 1st. render pass is drawing mirror texture
         // set uniforms
         oneColorShader.use();
         glm::mat4 model = glm::mat4(1.0f);
+        camera.Yaw += 180.0f;
+        camera.ProcessMouseMovement(0, 0, false);
         glm::mat4 view = camera.GetViewMatrix();
+        camera.Yaw -= 180.0f;
+        camera.ProcessMouseMovement(0, 0, true);
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         oneColorShader.setMat4("view", view);
         oneColorShader.setMat4("projection", projection);
@@ -316,7 +314,7 @@ int main(void)
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
-        // 1st. render pass, draw objects as normal, writing to the stencil buffer
+        // 1st. render pass, draw mirror texture 
         // --------------------------------------------------------------------
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
@@ -362,18 +360,73 @@ int main(void)
             shader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-
-        // bind framebuffer back to default
+        
+        // 2nd. render pass: draw as normal
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        model = glm::mat4(1.0f);
+        view = camera.GetViewMatrix();
+        shader.setMat4("view", view);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        // cubes
+        glActiveTexture(GL_TEXTURE0);
+        glBindVertexArray(cubeVAO);
+        glBindTexture(GL_TEXTURE_2D, cubeTexture);
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+        shader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        shader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        // floor
+        // draw floor normal
+        glStencilMask(0x00);
+
+        glBindVertexArray(planeVAO);
+        glBindTexture(GL_TEXTURE_2D, planeTexture);
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(1.5, 1.5, 1.0));
+        shader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
+        // To render each window from farthes to nearest
+        for (unsigned int i = 0; i < windows.size(); i++)
+        {
+            // length2 greater performance than glm::length
+            float distance = glm::length2(camera.Position - windows[i]);
+            sorted[distance] = windows[i];
+        }
+        glBindVertexArray(windowVAO);
+        glBindTexture(GL_TEXTURE_2D, windowTexture);
+        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, it->second);
+            shader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+
+         //bind framebuffer back to default
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         screenShader.use();
         glBindVertexArray(screenVAO);
         glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+            screenShader.setInt("visionEffect", 0);
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             screenShader.setInt("visionEffect", 1);
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)

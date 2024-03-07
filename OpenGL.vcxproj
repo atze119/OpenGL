@@ -106,6 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies;$(SolutionDir)dependencies\assimp\include;$(SolutionDIr)dependencies\assimp</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies;$(SolutionDir)dependencies\assimp\include;$(SolutionDIr)dependencies\assimp</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -268,7 +270,9 @@
     <Image Include="resources\textures\container2_specular.png" />
     <Image Include="resources\textures\grass.png" />
     <Image Include="resources\textures\lighting_maps_specular_color.png" />
+    <Image Include="resources\textures\marble.jpg" />
     <Image Include="resources\textures\matrix.jpg" />
+    <Image Include="resources\textures\metal.jpg" />
     <Image Include="resources\textures\metal.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
