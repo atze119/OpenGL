@@ -1,26 +1,27 @@
+#include <glad/glad.h>
 #include "stb_image.h" // This needs to be on top because of shitty include problems, stbi_image is included in Model.h!!!!
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-#include "Texture.h"
-#include <glad/glad.h> 
+#include "filesystem.h"
+// #include "Texture.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/norm.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include <format>
+// #include <format>
 #include <map>
 
 // Magnifying means up-scaling, minifying means down-sclaing
-// Magnifying cant be used on mipmaps because mipmaps are used to downscale the texture 
+// Magnifying cant be used on mipmaps because mipmaps are used to downscale the texture
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
-unsigned int loadTexture(char const* path);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+void processInput(GLFWwindow *window);
+unsigned int loadTexture(char const *path);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -30,7 +31,7 @@ const unsigned int SCR_HEIGHT = 600;
 Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse{ true };
+bool firstMouse{true};
 
 // timing
 float deltaTime = 0.0f;
@@ -38,7 +39,7 @@ float lastFrame = 0.0f;
 
 int main(void)
 {
-    GLFWwindow* window;
+    GLFWwindow *window;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -84,91 +85,88 @@ int main(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //// face-culling
-    //glEnable(GL_CULL_FACE);
-    //glFrontFace(GL_CW);
-    //glCullFace(GL_BACK);
+    // glEnable(GL_CULL_FACE);
+    // glFrontFace(GL_CW);
+    // glCullFace(GL_BACK);
 
-    Shader shader = Shader("Shader\\depthTestingVert.glsl", "Shader\\depthTestingFrag.glsl");
-    Shader screenShader = Shader("Shader\\bufferTestingVert.glsl", "Shader\\bufferTestingFrag.glsl");
+    Shader shader = Shader(FileSystem::getPath("shader/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/depthTestingFrag.glsl").c_str());
+    Shader screenShader = Shader(FileSystem::getPath("shader/bufferTestingVert.glsl").c_str(), FileSystem::getPath("shader/bufferTestingFrag.glsl").c_str());
 
     // set up vertex data (and buffer(s)) and configure vertex attributes. Now clockwise and counter-clockwise for face-culling
     // ------------------------------------------------------------------
     float cubeVertices[] = {
         // Back face
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right    
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right              
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left                
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Bottom-left
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // bottom-right
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  // top-left
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
         // Front face
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right        
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left        
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // bottom-right
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,  // top-left
         // Left face
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left       
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-        // Right face
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right      
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right          
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-         // Bottom face          
-         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-          0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-          0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left        
-          0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-         // Top face
-         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-          0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-          0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right                 
-          0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, // bottom-left  
-         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f  // top-left              
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-right
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-right
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+                                         // Right face
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,    // top-left
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  // bottom-right
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  // bottom-right
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,   // bottom-left
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,    // top-left
+        // Bottom face
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+        // Top face
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-right
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,  // bottom-left
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f  // top-left
     };
     float planeVertices[] = {
         // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+        -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
 
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-         5.0f, -0.5f, -5.0f,  2.0f, 2.0f
-    };
+        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+        5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
 
     float windowVertices[] = {
         // positions         // texture Coords (flipped y coordinates because texture is flipped upside down)
-        0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
-        0.0f, -0.5f,  0.0f,  0.0f,  0.0f,
-        1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
+        0.0f, -0.5f, 0.0f, 0.0f, 0.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 0.0f,
 
-        0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
-        1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
-        1.0f,  0.5f,  0.0f,  1.0f,  1.0f
-    };
+        0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 0.0f,
+        1.0f, 0.5f, 0.0f, 1.0f, 1.0f};
 
-    float screenVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-        // positions   // texCoords
-        -0.3f,  1.0f,  0.0f, 1.0f,
-        -0.3f,  0.7f,  0.0f, 0.0f,
-         0.3f,  0.7f,  1.0f, 0.0f,
+    float screenVertices[] = {// vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+                              // positions   // texCoords
+                              -0.3f, 1.0f, 0.0f, 1.0f,
+                              -0.3f, 0.7f, 0.0f, 0.0f,
+                              0.3f, 0.7f, 1.0f, 0.0f,
 
-        -0.3f,  1.0f,  0.0f, 1.0f,
-         0.3f,  0.7f,  1.0f, 0.0f,
-         0.3f,  1.0f,  1.0f, 1.0f
-    };
+                              -0.3f, 1.0f, 0.0f, 1.0f,
+                              0.3f, 0.7f, 1.0f, 0.0f,
+                              0.3f, 1.0f, 1.0f, 1.0f};
 
     std::vector<glm::vec3> windows;
     windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
@@ -185,9 +183,9 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glBindVertexArray(0);
 
     // floor buffers
@@ -198,9 +196,9 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glBindVertexArray(0);
 
     // window
@@ -211,9 +209,9 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, windowVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(windowVertices), &windowVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glBindVertexArray(0);
 
     // screen-quad buffer
@@ -224,26 +222,25 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), &screenVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
     glBindVertexArray(0);
 
-
     // load textures
-    unsigned int cubeTexture = loadTexture("resources\\textures\\container.jpg");
-    unsigned int planeTexture = loadTexture("resources\\textures\\metal.png");
-    unsigned int windowTexture = loadTexture("resources\\textures\\blending_transparent_window.png");
+    unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/container.jpg").c_str());
+    unsigned int planeTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
+    unsigned int windowTexture = loadTexture(FileSystem::getPath("resources/textures/blending_transparent_window.png").c_str());
 
     // shader configuration
     shader.use();
     shader.setInt("texture1", 0);
 
-    Shader oneColorShader("Shader\\depthTestingVert.glsl", "Shader\\shaderSingleColor.glsl");
-    
+    Shader oneColorShader(FileSystem::getPath("shader/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/shaderSingleColor.glsl").c_str());
+
     screenShader.use();
     screenShader.setInt("screenTexture", 0);
-    
+
     unsigned int framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -256,7 +253,7 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // attach to current framebuffer
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
-    //glBindTexture(GL_TEXTURE_2D, 0);
+    // glBindTexture(GL_TEXTURE_2D, 0);
 
     // create renderbuffer for depth and stencil testing
     // allocating buffer memory
@@ -274,7 +271,6 @@ int main(void)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     // unbind Framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-   
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -284,7 +280,7 @@ int main(void)
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-       
+
         // input
         // -----
         processInput(window);
@@ -296,7 +292,7 @@ int main(void)
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // don't forget to clear the stencil buffer!
-          
+
         // 1st. render pass is drawing mirror texture
         // set uniforms
         oneColorShader.use();
@@ -314,7 +310,7 @@ int main(void)
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
-        // 1st. render pass, draw mirror texture 
+        // 1st. render pass, draw mirror texture
         // --------------------------------------------------------------------
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
@@ -360,7 +356,7 @@ int main(void)
             shader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-        
+
         // 2nd. render pass: draw as normal
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glEnable(GL_DEPTH_TEST);
@@ -414,11 +410,11 @@ int main(void)
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
-         //bind framebuffer back to default
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // bind framebuffer back to default
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
-        //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         screenShader.use();
         glBindVertexArray(screenVAO);
@@ -434,31 +430,31 @@ int main(void)
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
             screenShader.setInt("visionEffect", 3);
         // 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
-        // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing 
+        // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing
         // the objects' size differences, making it look like borders.
         // -----------------------------------------------------------------------------------------------------------------------------
-        //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        //glStencilMask(0x00);
-        //glDisable(GL_DEPTH_TEST);
-        //oneColorShader.use();
-        //float scale = 1.1f;
+        // glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        // glStencilMask(0x00);
+        // glDisable(GL_DEPTH_TEST);
+        // oneColorShader.use();
+        // float scale = 1.1f;
         //// cubes
-        //glBindVertexArray(cubeVAO);
-        //glBindTexture(GL_TEXTURE_2D, cubeTexture);
-        //model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        //model = glm::scale(model, glm::vec3(scale, scale, scale));
-        //oneColorShader.setMat4("model", model);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-        //model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        //model = glm::scale(model, glm::vec3(scale, scale, scale));
-        //oneColorShader.setMat4("model", model);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-        //glBindVertexArray(0);
-        //glStencilMask(0xFF);
-        //glStencilFunc(GL_ALWAYS, 0, 0xFF);
-        //glEnable(GL_DEPTH_TEST);
+        // glBindVertexArray(cubeVAO);
+        // glBindTexture(GL_TEXTURE_2D, cubeTexture);
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+        // model = glm::scale(model, glm::vec3(scale, scale, scale));
+        // oneColorShader.setMat4("model", model);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        // model = glm::scale(model, glm::vec3(scale, scale, scale));
+        // oneColorShader.setMat4("model", model);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glBindVertexArray(0);
+        // glStencilMask(0xFF);
+        // glStencilFunc(GL_ALWAYS, 0, 0xFF);
+        // glEnable(GL_DEPTH_TEST);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -481,12 +477,12 @@ int main(void)
     return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
+void mouse_callback(GLFWwindow *window, double xPosIn, double yPosIn)
 {
     float xPos = static_cast<float>(xPosIn);
     float yPos = static_cast<float>(yPosIn);
@@ -505,13 +501,13 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn)
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+void scroll_callback(GLFWwindow *window, double xOffset, double yOffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yOffset));
 }
 
 bool polygonModePressed = false;
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow *window)
 {
     float sprintMultiplier = 3.0f;
     float sneakMultiplier = 0.5f;
@@ -569,29 +565,28 @@ void processInput(GLFWwindow* window)
     // TODO: This needs to be implemented
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         // lightPos.x += 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        //lightPos.x -= 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        //lightPos.y += 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        //lightPos.y -= 0.1f;
-    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
-        if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
-            glfwRestoreWindow(window);
-        else
-            glfwMaximizeWindow(window);
-
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            // lightPos.x -= 0.1f;
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+                // lightPos.y += 0.1f;
+                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+                    // lightPos.y -= 0.1f;
+                    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+                        if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
+                            glfwRestoreWindow(window);
+                        else
+                            glfwMaximizeWindow(window);
 }
 
 // utility function for loading a 2D texture from file
 // ---------------------------------------------------
-unsigned int loadTexture(char const* path)
+unsigned int loadTexture(char const *path)
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
-    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
     if (data)
     {
         GLenum format;
@@ -606,7 +601,7 @@ unsigned int loadTexture(char const* path)
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        if (format == GL_RGBA) 
+        if (format == GL_RGBA)
         {
             // prevents generating a small stripe on textures with alpha (when drawing transparent)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
