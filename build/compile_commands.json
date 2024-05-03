@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/fynn/Projects/OpenGL/build",
+  "command": "/usr/bin/clang++  -I/home/fynn/Projects/OpenGL/includes -I/home/fynn/Projects/OpenGL/build/configuration -g -Wall -o CMakeFiles/LearnOpenGL.dir/src/Application.cpp.o -c /home/fynn/Projects/OpenGL/src/Application.cpp",
+  "file": "/home/fynn/Projects/OpenGL/src/Application.cpp"
+},
+{
+  "directory": "/home/fynn/Projects/OpenGL/build",
+  "command": "/usr/bin/clang  -I/home/fynn/Projects/OpenGL/includes -I/home/fynn/Projects/OpenGL/build/configuration -g -o CMakeFiles/LearnOpenGL.dir/src/glad.c.o -c /home/fynn/Projects/OpenGL/src/glad.c",
+  "file": "/home/fynn/Projects/OpenGL/src/glad.c"
+},
+{
+  "directory": "/home/fynn/Projects/OpenGL/build",
+  "command": "/usr/bin/clang++  -I/home/fynn/Projects/OpenGL/includes -I/home/fynn/Projects/OpenGL/build/configuration -g -Wall -o CMakeFiles/STB_IMAGE.dir/src/stb_image.cpp.o -c /home/fynn/Projects/OpenGL/src/stb_image.cpp",
+  "file": "/home/fynn/Projects/OpenGL/src/stb_image.cpp"
+},
+{
+  "directory": "/home/fynn/Projects/OpenGL/build",
+  "command": "/usr/bin/clang  -I/home/fynn/Projects/OpenGL/includes -I/home/fynn/Projects/OpenGL/build/configuration -g -o CMakeFiles/GLAD.dir/src/glad.c.o -c /home/fynn/Projects/OpenGL/src/glad.c",
+  "file": "/home/fynn/Projects/OpenGL/src/glad.c"
+}
+]

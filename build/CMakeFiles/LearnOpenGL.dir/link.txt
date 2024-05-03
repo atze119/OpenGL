@@ -1,0 +1,1 @@
+/usr/bin/clang++ -g -Wall -rdynamic CMakeFiles/LearnOpenGL.dir/src/Application.cpp.o CMakeFiles/LearnOpenGL.dir/src/glad.c.o -o LearnOpenGL  -lglfw  -ldl
