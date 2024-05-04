@@ -1,5 +1,0 @@
-/home/fynn/Projects/OpenGL/build/CMakeFiles/LearnOpenGL.dir
-/home/fynn/Projects/OpenGL/build/CMakeFiles/STB_IMAGE.dir
-/home/fynn/Projects/OpenGL/build/CMakeFiles/GLAD.dir
-/home/fynn/Projects/OpenGL/build/CMakeFiles/edit_cache.dir
-/home/fynn/Projects/OpenGL/build/CMakeFiles/rebuild_cache.dir
