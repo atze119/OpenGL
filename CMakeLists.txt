@@ -85,6 +85,6 @@ include_directories(${CMAKE_BINARY_DIR}/configuration)
     #     set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin/${chapter}")
     # endif(WIN32)
 
-    file(GLOB DLLS "dlls/*.dll")
+    # file(GLOB DLLS "dlls/*.dll")
 
  
