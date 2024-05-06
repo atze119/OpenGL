@@ -55,7 +55,7 @@ private:
 			std::cout << "Error::ASSIMP::" << importer.GetErrorString() << std::endl;
 			return;
 		}
-		directory = path.substr(0, path.find_last_of("\\"));
+		directory = path.substr(0, path.find_last_of("/"));
 
 		processNode(scene->mRootNode, scene);
 	}
@@ -188,7 +188,7 @@ private:
 	unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma)
 	{
 		std::string filename = std::string(path);
-		filename = directory + "\\" + filename;
+		filename = directory + "/" + filename;
 
 		unsigned int textureID;
 		glGenTextures(1, &textureID);

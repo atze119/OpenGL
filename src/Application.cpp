@@ -234,7 +234,7 @@ int main(void)
     unsigned int windowTexture = loadTexture(FileSystem::getPath("resources/textures/blending_transparent_window.png").c_str());
 
     // load model
-    Model backPackModel(FileSystem::getPath("resources/models/backpack.obj"));
+    Model backPackModel(FileSystem::getPath("resources/models/backpack/backpack.obj"));
 
     // shader configuration
     shader.use();
@@ -420,7 +420,7 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        backPackModel.Draw(shader);
+        // backPackModel.Draw(shader);
 
         screenShader.use();
         glBindVertexArray(screenVAO);

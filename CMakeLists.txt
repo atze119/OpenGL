@@ -29,17 +29,7 @@ set(LIBS ${LIBS} STB_IMAGE)
 add_library(GLAD "src/glad.c")
 set(LIBS ${LIBS} GLAD)
 
-<<<<<<< HEAD
-add_executable(LearnOpenGL src/Application.cpp)
-target_link_libraries(LearnOpenGL ${LIBS})
-
-# TODO: this fixes an error on linux but idk about windows
-target_link_libraries(LearnOpenGL glfw)
-
-include_directories(${CMAKE_SOURCE_DIR}/includes)
-=======
 include_directories(${CMAKE_SOURCE_DIR}/include)
->>>>>>> refs/remotes/origin/CMake
 
 # find the required packages
 find_package(GLM REQUIRED)
@@ -69,6 +59,10 @@ elseif(UNIX AND NOT APPLE)
   else()
   set(LIBS )
 endif(WIN32)
+
+add_executable(LearnOpenGL src/Application.cpp src/glad.c)
+
+target_link_libraries(LearnOpenGL ${LIBS})
 
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
 include_directories(${CMAKE_BINARY_DIR}/configuration)
