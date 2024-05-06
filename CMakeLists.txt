@@ -3,7 +3,7 @@ cmake_policy(VERSION 3.0)
 
 project(LearnOpenGL)
 
-add_executable(LearnOpenGL src/Application.cpp src/glad.c)
+# add_executable(LearnOpenGL src/Application.cpp src/glad.c)
 
 # set(CMAKE_CXX_STANDARD 17) # this does nothing for MSVC, use target_compile_options below
 # set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,8 +21,6 @@ endif(WIN32)
 
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
-# TODO: this fixes an error on linux but idk about windows
-target_link_libraries(LearnOpenGL glfw)
 
 # first create relevant static libraries required for other projects
 add_library(STB_IMAGE "src/stb_image.cpp")
@@ -30,6 +28,12 @@ set(LIBS ${LIBS} STB_IMAGE)
 
 add_library(GLAD "src/glad.c")
 set(LIBS ${LIBS} GLAD)
+
+add_executable(LearnOpenGL src/Application.cpp)
+target_link_libraries(LearnOpenGL ${LIBS})
+
+# TODO: this fixes an error on linux but idk about windows
+target_link_libraries(LearnOpenGL glfw)
 
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 

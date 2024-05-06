@@ -89,8 +89,8 @@ int main(void)
     // glFrontFace(GL_CW);
     // glCullFace(GL_BACK);
 
-    Shader shader = Shader(FileSystem::getPath("shader/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/depthTestingFrag.glsl").c_str());
-    Shader screenShader = Shader(FileSystem::getPath("shader/bufferTestingVert.glsl").c_str(), FileSystem::getPath("shader/bufferTestingFrag.glsl").c_str());
+    Shader shader = Shader(FileSystem::getPath("shader/depthTesting/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/depthTesting/depthTestingFrag.glsl").c_str());
+    Shader screenShader = Shader(FileSystem::getPath("shader/bufferTesting/bufferTestingVert.glsl").c_str(), FileSystem::getPath("shader/bufferTesting/bufferTestingFrag.glsl").c_str());
 
     // set up vertex data (and buffer(s)) and configure vertex attributes. Now clockwise and counter-clockwise for face-culling
     // ------------------------------------------------------------------
@@ -232,11 +232,14 @@ int main(void)
     unsigned int planeTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
     unsigned int windowTexture = loadTexture(FileSystem::getPath("resources/textures/blending_transparent_window.png").c_str());
 
+    // load model
+    Model backPackModel(FileSystem::getPath("resources/models/backpack.obj"));
+
     // shader configuration
     shader.use();
     shader.setInt("texture1", 0);
 
-    Shader oneColorShader(FileSystem::getPath("shader/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/shaderSingleColor.glsl").c_str());
+    Shader oneColorShader(FileSystem::getPath("shader/depthTesting/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/shaderSingleColor.glsl").c_str());
 
     screenShader.use();
     screenShader.setInt("screenTexture", 0);
@@ -416,6 +419,8 @@ int main(void)
         // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+        backPackModel.Draw(shader);
+
         screenShader.use();
         glBindVertexArray(screenVAO);
         glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
@@ -548,19 +553,23 @@ void processInput(GLFWwindow *window)
             camera.ProcessKeyboard(BACKWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             camera.ProcessKeyboard(LEFT, deltaTime * sprintMultiplier);
         else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             camera.ProcessKeyboard(LEFT, deltaTime * sneakMultiplier);
         else
             camera.ProcessKeyboard(LEFT, deltaTime);
+    }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             camera.ProcessKeyboard(RIGHT, deltaTime * sprintMultiplier);
         else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             camera.ProcessKeyboard(RIGHT, deltaTime * sneakMultiplier);
         else
             camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
     // light-movement
     // TODO: This needs to be implemented
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -572,10 +581,12 @@ void processInput(GLFWwindow *window)
                 if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
                     // lightPos.y -= 0.1f;
                     if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
+                    {
                         if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
                             glfwRestoreWindow(window);
                         else
                             glfwMaximizeWindow(window);
+                    }
 }
 
 // utility function for loading a 2D texture from file
@@ -589,7 +600,7 @@ unsigned int loadTexture(char const *path)
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
     if (data)
     {
-        GLenum format;
+        GLenum format = 0;
         if (nrComponents == 1)
             format = GL_RED;
         else if (nrComponents == 3)
