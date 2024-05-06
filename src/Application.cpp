@@ -22,6 +22,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 unsigned int loadTexture(char const *path);
+unsigned int loadCubemap(std::vector<std::string> faces);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -238,11 +239,11 @@ int main(void)
 
     // load cubemap
     std::vector<std::string> faces{
-        "right.jpg",
-        "left.jpg",
-        "top.jpg",
-        "front.jpg",
-        "back.jpg"};
+        FileSystem::getPath("resources/textures/skybox/right.jpg").c_str(),
+        FileSystem::getPath("resources/textures/skybox/left.jpg").c_str(),
+        FileSystem::getPath("resources/textures/skybox/top.jpg").c_str(),
+        FileSystem::getPath("resources/textures/skybox/front.jpg").c_str(),
+        FileSystem::getPath("resources/textures/skybox/back.jpg").c_str()};
     unsigned int cubeMapTexture = loadCubemap(faces);
 
     float skyboxVertices[] = {
@@ -288,6 +289,22 @@ int main(void)
         1.0f, -1.0f, -1.0f,
         -1.0f, -1.0f, 1.0f,
         1.0f, -1.0f, 1.0f};
+
+    Shader skyboxShader = Shader(FileSystem::getPath("shader/cubemap/cubemapVert.glsl").c_str(), FileSystem::getPath("shader/cubemap/cubemapFrag.glsl").c_str());
+
+    // cubemap VAO, VBO
+    unsigned int skyBoxVAO, cubemapVBO;
+    glGenVertexArrays(1, &skyBoxVAO);
+    glGenBuffers(1, &cubemapVBO);
+    glBindVertexArray(skyBoxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyBoxVAO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)(2 * sizeof(float)));
+    glBindVertexArray(0);
 
     // shader configuration
     shader.use();
@@ -346,6 +363,7 @@ int main(void)
 
         // render
         // ------
+
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glEnable(GL_DEPTH_TEST);
 
@@ -364,6 +382,15 @@ int main(void)
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         oneColorShader.setMat4("view", view);
         oneColorShader.setMat4("projection", projection);
+
+        glDepthMask(GL_FALSE);
+        skyboxShader.use();
+        skyboxShader.setMat4("view", view);
+        skyboxShader.setMat4("projection", projection);
+        glBindVertexArray(skyBoxVAO);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
 
         shader.use();
         shader.setMat4("view", view);
