@@ -31,7 +31,7 @@ set(LIBS ${LIBS} STB_IMAGE)
 add_library(GLAD "src/glad.c")
 set(LIBS ${LIBS} GLAD)
 
-include_directories(${CMAKE_SOURCE_DIR}/includes)
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # find the required packages
 find_package(GLM REQUIRED)
