@@ -1,0 +1,5 @@
+C:/dev/Visual Studio/source/repos/OpenGL/OpenGL/CMakeFiles/LearnOpenGL.dir
+C:/dev/Visual Studio/source/repos/OpenGL/OpenGL/CMakeFiles/STB_IMAGE.dir
+C:/dev/Visual Studio/source/repos/OpenGL/OpenGL/CMakeFiles/GLAD.dir
+C:/dev/Visual Studio/source/repos/OpenGL/OpenGL/CMakeFiles/ALL_BUILD.dir
+C:/dev/Visual Studio/source/repos/OpenGL/OpenGL/CMakeFiles/ZERO_CHECK.dir

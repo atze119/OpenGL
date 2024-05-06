@@ -29,6 +29,7 @@ set(LIBS ${LIBS} STB_IMAGE)
 add_library(GLAD "src/glad.c")
 set(LIBS ${LIBS} GLAD)
 
+<<<<<<< HEAD
 add_executable(LearnOpenGL src/Application.cpp)
 target_link_libraries(LearnOpenGL ${LIBS})
 
@@ -36,6 +37,9 @@ target_link_libraries(LearnOpenGL ${LIBS})
 target_link_libraries(LearnOpenGL glfw)
 
 include_directories(${CMAKE_SOURCE_DIR}/includes)
+=======
+include_directories(${CMAKE_SOURCE_DIR}/include)
+>>>>>>> refs/remotes/origin/CMake
 
 # find the required packages
 find_package(GLM REQUIRED)
