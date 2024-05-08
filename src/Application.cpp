@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Model.h"
 #include "filesystem.h"
+#include "Movement.h"
 // #include "Texture.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/norm.hpp>
@@ -20,7 +21,6 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
 unsigned int loadTexture(char const *path);
 unsigned int loadCubemap(std::vector<std::string> faces);
 
@@ -72,7 +72,7 @@ int main(void)
     glfwSetScrollCallback(window, scroll_callback);
 
     // tell stbi_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(1);
+    stbi_set_flip_vertically_on_load(false);
 
     // configure global opengl state
     // -----------------------------
@@ -242,6 +242,7 @@ int main(void)
         FileSystem::getPath("resources/textures/skybox/right.jpg").c_str(),
         FileSystem::getPath("resources/textures/skybox/left.jpg").c_str(),
         FileSystem::getPath("resources/textures/skybox/top.jpg").c_str(),
+        FileSystem::getPath("resources/textures/skybox/bottom.jpg").c_str(),
         FileSystem::getPath("resources/textures/skybox/front.jpg").c_str(),
         FileSystem::getPath("resources/textures/skybox/back.jpg").c_str()};
     unsigned int cubeMapTexture = loadCubemap(faces);
@@ -293,18 +294,16 @@ int main(void)
     Shader skyboxShader = Shader(FileSystem::getPath("shader/cubemap/cubemapVert.glsl").c_str(), FileSystem::getPath("shader/cubemap/cubemapFrag.glsl").c_str());
 
     // cubemap VAO, VBO
-    unsigned int skyBoxVAO, cubemapVBO;
-    glGenVertexArrays(1, &skyBoxVAO);
-    glGenBuffers(1, &cubemapVBO);
-    glBindVertexArray(skyBoxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, skyBoxVAO);
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)(2 * sizeof(float)));
-    glBindVertexArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    // glBindVertexArray(0);
 
     // shader configuration
     shader.use();
@@ -348,6 +347,11 @@ int main(void)
     // unbind Framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    skyboxShader.use();
+    skyboxShader.setInt("skybox", 0);
+
+    Movement movement = Movement();
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -359,7 +363,7 @@ int main(void)
 
         // input
         // -----
-        processInput(window);
+        movement.processInput(window, &camera, deltaTime);
 
         // render
         // ------
@@ -382,15 +386,6 @@ int main(void)
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         oneColorShader.setMat4("view", view);
         oneColorShader.setMat4("projection", projection);
-
-        glDepthMask(GL_FALSE);
-        skyboxShader.use();
-        skyboxShader.setMat4("view", view);
-        skyboxShader.setMat4("projection", projection);
-        glBindVertexArray(skyBoxVAO);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthMask(GL_TRUE);
 
         shader.use();
         shader.setMat4("view", view);
@@ -514,6 +509,24 @@ int main(void)
             screenShader.setInt("visionEffect", 2);
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
             screenShader.setInt("visionEffect", 3);
+
+        glEnable(GL_DEPTH_TEST);
+
+        // glDepthMask(GL_FALSE);
+        // draw skybox as last
+        glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
+        skyboxShader.use();
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+        skyboxShader.setMat4("view", view);
+        skyboxShader.setMat4("projection", projection);
+        // skybox cube
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthFunc(GL_LESS); // set depth function back to default
+
         // 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
         // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing
         // the objects' size differences, making it look like borders.
@@ -552,9 +565,11 @@ int main(void)
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &planeVAO);
     glDeleteVertexArrays(1, &screenVAO);
+    glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &planeVBO);
     glDeleteBuffers(1, &screenVBO);
+    glDeleteBuffers(1, &skyboxVBO);
     glDeleteRenderbuffers(1, &renderbuffer);
     glDeleteFramebuffers(1, &framebuffer);
 
@@ -589,84 +604,6 @@ void mouse_callback(GLFWwindow *window, double xPosIn, double yPosIn)
 void scroll_callback(GLFWwindow *window, double xOffset, double yOffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yOffset));
-}
-
-bool polygonModePressed = false;
-void processInput(GLFWwindow *window)
-{
-    float sprintMultiplier = 3.0f;
-    float sneakMultiplier = 0.5f;
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE))
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-        if (polygonModePressed == false)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            polygonModePressed = true;
-            // TODO: add a cooldown timer
-        }
-        else
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            polygonModePressed = false;
-        }
-    }
-    // Movements
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(FORWARD, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(BACKWARD, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(LEFT, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(LEFT, deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime * sprintMultiplier);
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-            camera.ProcessKeyboard(RIGHT, deltaTime * sneakMultiplier);
-        else
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-    }
-    // light-movement
-    // TODO: This needs to be implemented
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        // lightPos.x += 0.1f;
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-            // lightPos.x -= 0.1f;
-            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-                // lightPos.y += 0.1f;
-                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-                    // lightPos.y -= 0.1f;
-                    if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS)
-                    {
-                        if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
-                            glfwRestoreWindow(window);
-                        else
-                            glfwMaximizeWindow(window);
-                    }
 }
 
 // utility function for loading a 2D texture from file
@@ -723,18 +660,18 @@ unsigned int loadCubemap(std::vector<std::string> faces)
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++)
     {
         unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         }
         else
         {
-            std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+            std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
         }
         stbi_image_free(data);
     }
