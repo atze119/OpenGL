@@ -367,6 +367,8 @@ int main(void)
 
     Shader oneColorShader(FileSystem::getPath("shader/depthTesting/depthTestingVert.glsl").c_str(), FileSystem::getPath("shader/shaderSingleColor.glsl").c_str());
 
+    Shader refractionShader(FileSystem::getPath("shader/refraction/refractionVert.glsl").c_str(), FileSystem::getPath("shader/refraction/refractionFrag.glsl").c_str());
+
     screenShader.use();
     screenShader.setInt("screenTexture", 0);
 
@@ -376,9 +378,14 @@ int main(void)
     reflectionShader.use();
     reflectionShader.setInt("skybox", 0);
 
+    refractionShader.use();
+    refractionShader.setInt("skybox", 0);
+
     // Shader modelShader(FileSystem::getPath("shader/model/modelVertexShader.glsl").c_str(), FileSystem::getPath("shader/model/modelFragShader.glsl").c_str());
     // load model
-    // Model backPackModel(FileSystem::getPath("resources/models/backpack/backpack.obj"));
+    Model backPackModel(FileSystem::getPath("resources/models/backpack/backpack.obj"));
+
+    Model nanosuitModel(FileSystem::getPath("resources/models/nanosuit/nanosuit.obj"));
     // modelShader.use();
     // modelShader.setMat4("mo")
     unsigned int framebuffer;
@@ -583,6 +590,31 @@ int main(void)
         reflectionShader.setMat4("view", view);
         reflectionShader.setMat4("projection", projection);
         reflectionShader.setVec3("cameraPos", camera.Position);
+        glBindVertexArray(reflectionCubeVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(10.0f, 0.0f, 10.0f));
+        reflectionShader.setMat4("model", model);
+        backPackModel.Draw(reflectionShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(15.0f, -5.0f, 10.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        reflectionShader.setMat4("model", model);
+        nanosuitModel.Draw(reflectionShader);
+
+        // refraction cube
+        // reflection cube
+        refractionShader.use();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 10.0f));
+        refractionShader.setMat4("model", model);
+        refractionShader.setMat4("view", view);
+        refractionShader.setMat4("projection", projection);
+        refractionShader.setVec3("cameraPos", camera.Position);
         glBindVertexArray(reflectionCubeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
