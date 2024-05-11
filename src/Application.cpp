@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-// #include "stb_image.h" // This needs to be on top because of shitty include problems, stbi_image is included in Model.h!!!!
+#include "stb_image.h" // This needs to be on top because of shitty include problems, stbi_image is included in Model.h!!!!
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
@@ -421,6 +421,122 @@ int main(void)
 
     Movement movement = Movement();
 
+    float quadVertices[] = {
+        // positions     // colors
+        -0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
+        -0.05f, -0.05f, 0.0f, 0.0f, 1.0f,
+
+        -0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
+        0.05f, 0.05f, 0.0f, 1.0f, 1.0f};
+
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(2 * sizeof(float)));
+
+    glm::vec2 translations[100];
+    int index = 0;
+    float offset = 0.1f;
+    for (int y = -10; y < 10; y += 2)
+    {
+        for (int x = -10; x < 10; x += 2)
+        {
+            glm::vec2 translation;
+            translation.x = (float)x / 10.0f + offset;
+            translation.y = (float)y / 10.0f + offset;
+            translations[index++] = translation;
+        }
+    }
+
+    unsigned int instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    // VertexAttribPointer points to the layout location attribute in vertex shader! -> location = 2
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // 1. Parameter: vertex attribute location, 2. Parameter says that this is an instanced vertex attribute
+    glVertexAttribDivisor(2, 1);
+
+    Shader instancingShader(FileSystem::getPath("shader/instancing/instancingVert.glsl").c_str(), FileSystem::getPath("shader/instancing/instancingFrag.glsl").c_str());
+
+    Model planetModel(FileSystem::getPath("resources/models/planet/planet.obj"));
+    Model asteriodModel(FileSystem::getPath("resources/models/asteriod/rock.obj"));
+
+    Shader planetShader(FileSystem::getPath("shader/instancing/planetVert.glsl").c_str(), FileSystem::getPath("shader/instancing/planetFrag.glsl").c_str());
+
+    Shader asteriodShader(FileSystem::getPath("shader/instancing/instancingVert.glsl").c_str(), FileSystem::getPath("shader/instancing/instancingFrag.glsl").c_str());
+
+    unsigned int amount = 10000;
+    glm::mat4 *modelMatrices = new glm::mat4[amount];
+    srand(glfwGetTime());
+    float radius = 70.0f;
+    float asteriodOffset = 15.0f;
+    for (unsigned int i = 0; i < amount; i++)
+    {
+        glm::mat4 rockModel = glm::mat4(1.0f);
+        // 1. translation: displace along circle with 'radius' in range [-offset, offset]
+        float angle = (float)i / (float)amount * 360.0f;
+        float displacement(rand() % (int)(2 * asteriodOffset * 100) / 100.0f - asteriodOffset);
+        float x = sin(angle) * radius + displacement;
+        displacement = (rand() % (int)(2 * asteriodOffset * 100) / 100.0f - asteriodOffset);
+        float y = displacement * 0.4f;
+        displacement = (rand() % (int)(2 * asteriodOffset * 100) / 100.0f - asteriodOffset);
+        float z = cos(angle) * radius + displacement;
+        rockModel = glm::translate(rockModel, glm::vec3(x, y, z));
+
+        // 2. scale: scale between 0.05f and 0.25f
+        float scale = (rand() % 20) / 100.0f + 0.05f;
+        rockModel = glm::scale(rockModel, glm::vec3(scale));
+
+        // 3. rotation: add random rotation around a (semi) randomly picked rotation axis vector
+        float rotAngle = (rand() % 360);
+        rockModel = glm::rotate(rockModel, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // 4. now add to list of matrices
+        modelMatrices[i] = rockModel;
+    }
+
+    unsigned int instanceBuffer;
+    glGenBuffers(1, &instanceBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+    for (unsigned int i = 0; i < asteriodModel.meshes.size(); i++)
+    {
+        unsigned int VAO = asteriodModel.meshes[i].VAO;
+        glBindVertexArray(VAO);
+
+        // std::size_t vec4Size = sizeof(glm::vec4);
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
+    }
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -582,6 +698,11 @@ int main(void)
 
         glEnable(GL_DEPTH_TEST);
 
+        // instancingShader.use();
+        // glBindVertexArray(quadVAO);
+        // glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+        // glBindVertexArray(0);
+
         // reflection cube
         reflectionShader.use();
         model = glm::mat4(1.0f);
@@ -607,7 +728,6 @@ int main(void)
         nanosuitModel.Draw(reflectionShader);
 
         // refraction cube
-        // reflection cube
         refractionShader.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 10.0f));
@@ -619,6 +739,38 @@ int main(void)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        planetShader.use();
+        planetShader.setMat4("view", view);
+        planetShader.setMat4("projection", projection);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-30.0f, 0.0f, 10.0f));
+        model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+        planetShader.setMat4("model", model);
+        planetModel.Draw(planetShader);
+
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(-5.0f, 0.0f, 10.0f));
+        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        // instancingShader.setMat4("model", model);
+        asteriodShader.use();
+        asteriodShader.setMat4("projection", projection);
+        asteriodShader.setMat4("view", view);
+        asteriodShader.setInt("texture_diffuse1", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, asteriodModel.textures_loaded[0].id);
+        for (unsigned int i = 0; i < asteriodModel.meshes.size(); i++)
+        {
+            glBindVertexArray(asteriodModel.meshes[i].VAO);
+            glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(asteriodModel.meshes[i].indices.size()), GL_UNSIGNED_INT, 0, amount);
+            glBindVertexArray(0);
+        }
+
+        // model = glm::mat4(1.0f);
+        // model = glm::translate(model, glm::vec3(-20.0f, -5.0f, 10.0f));
+        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        // modelShader.setMat4("model", model);
+        // nanosuitModel.Draw(modelShader);
 
         // glDepthMask(GL_FALSE);
         // draw skybox as last

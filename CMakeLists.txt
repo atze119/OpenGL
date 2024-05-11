@@ -60,7 +60,10 @@ elseif(UNIX AND NOT APPLE)
   set(LIBS )
 endif(WIN32)
 
-add_executable(LearnOpenGL src/Application.cpp src/glad.c src/Movement.cpp src/Utils.cpp)
+set(SOURCE_FILES ${SOURCE_FILES}
+    src/Application.cpp src/glad.c src/Movement.cpp src/Utils.cpp src/Model.cpp src/stb_image.cpp)
+
+add_executable(LearnOpenGL ${SOURCE_FILES})
 
 target_link_libraries(LearnOpenGL ${LIBS})
 
